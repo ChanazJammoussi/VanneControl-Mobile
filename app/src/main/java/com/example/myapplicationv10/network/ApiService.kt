@@ -1,0 +1,232 @@
+package com.example.myapplicationv10.network
+
+import com.example.myapplicationv10.model.*
+import okhttp3.MultipartBody
+import retrofit2.Response
+import retrofit2.http.*
+
+/**
+ * ApiService - Interface Retrofit définissant tous les endpoints de l'API backend
+ *
+ * Documentation: Voir context.md pour les détails complets
+ */
+interface ApiService {
+
+    // =====================
+    // AUTHENTICATION
+    // =====================
+
+    /**
+     * POST /auth/register
+     * Créer un nouveau compte utilisateur
+     */
+    @POST("auth/register")
+    suspend fun register(
+        @Body request: RegisterRequest
+    ): Response<AuthResponse>
+
+    /**
+     * POST /auth/login
+     * Se connecter et obtenir un JWT token
+     */
+    @POST("auth/login")
+    suspend fun login(
+        @Body request: LoginRequest
+    ): Response<AuthResponse>
+
+    // =====================
+    // USER PROFILE
+    // =====================
+
+    /**
+     * GET /user/profile
+     * Récupérer le profil de l'utilisateur connecté
+     * Requires: Authorization header avec JWT token
+     */
+    @GET("user/profile")
+    suspend fun getUserProfile(): Response<User>
+
+    /**
+     * PUT /user/profile
+     * Mettre à jour le profil de l'utilisateur connecté
+     * Requires: Authorization header avec JWT token
+     */
+    @PUT("user/profile")
+    suspend fun updateUserProfile(
+        @Body request: UpdateProfileRequest
+    ): Response<User>
+
+    /**
+     * PUT /user/preferences
+     * Mettre à jour les préférences de l'utilisateur
+     * Requires: Authorization header avec JWT token
+     */
+    @PUT("user/preferences")
+    suspend fun updateUserPreferences(
+        @Body request: UpdatePreferencesRequest
+    ): Response<User>
+
+    // =====================
+    // AVATAR
+    // =====================
+
+    /**
+     * POST /user/avatar
+     * Upload un nouvel avatar (multipart/form-data)
+     * Requires: Authorization header avec JWT token
+     *
+     * @param avatar Le fichier image (max 5MB, formats: JPG, PNG, WebP)
+     * @return AvatarResponse avec l'URL du nouvel avatar
+     */
+    @Multipart
+    @POST("user/avatar")
+    suspend fun uploadAvatar(
+        @Part avatar: MultipartBody.Part
+    ): Response<AvatarResponse>
+
+    /**
+     * DELETE /user/avatar
+     * Supprimer l'avatar actuel
+     * Requires: Authorization header avec JWT token
+     */
+    @DELETE("user/avatar")
+    suspend fun deleteAvatar(): Response<AvatarResponse>
+
+    // =====================
+    // DEVICES
+    // =====================
+
+    /**
+     * GET /devices
+     * Récupérer la liste de tous les appareils de l'utilisateur
+     * Requires: Authorization header avec JWT token
+     */
+    @GET("devices")
+    suspend fun getDevices(): Response<DevicesResponse>
+
+    /**
+     * GET /devices/{deviceId}
+     * Récupérer un appareil spécifique par son ID
+     * Requires: Authorization header avec JWT token
+     */
+    @GET("devices/{deviceId}")
+    suspend fun getDevice(
+        @Path("deviceId") deviceId: String
+    ): Response<DeviceResponse>
+
+    /**
+     * GET /devices/{deviceId}/stats
+     * Récupérer les statistiques d'un appareil
+     * Requires: Authorization header avec JWT token
+     */
+    @GET("devices/{deviceId}/stats")
+    suspend fun getDeviceStats(
+        @Path("deviceId") deviceId: String
+    ): Response<DeviceStatsResponse>
+
+    // =====================
+    // PISTONS (VALVES)
+    // =====================
+
+    /**
+     * POST /devices/{deviceId}/pistons/{pistonNumber}
+     * Contrôler un piston (activer/désactiver)
+     * Requires: Authorization header avec JWT token
+     */
+    @POST("devices/{deviceId}/pistons/{pistonNumber}")
+    suspend fun controlPiston(
+        @Path("deviceId") deviceId: String,
+        @Path("pistonNumber") pistonNumber: Int,
+        @Body request: PistonControlRequest
+    ): Response<PistonControlResponse>
+
+    // =====================
+    // TELEMETRY / HISTORY
+    // =====================
+
+    /**
+     * GET /telemetry
+     * Récupérer l'historique des événements
+     * Requires: Authorization header avec JWT token
+     *
+     * @param deviceId Filtrer par appareil (optionnel)
+     * @param pistonNumber Filtrer par numéro de piston (optionnel)
+     * @param action Filtrer par action: "activated" ou "deactivated" (optionnel)
+     * @param startDate Date de début au format ISO (optionnel)
+     * @param endDate Date de fin au format ISO (optionnel)
+     * @param limit Nombre maximum de résultats (optionnel)
+     */
+    @GET("telemetry")
+    suspend fun getTelemetry(
+        @Query("deviceId") deviceId: String? = null,
+        @Query("pistonNumber") pistonNumber: Int? = null,
+        @Query("action") action: String? = null,
+        @Query("startDate") startDate: String? = null,
+        @Query("endDate") endDate: String? = null,
+        @Query("limit") limit: Int? = null
+    ): Response<TelemetryListResponse>
+
+    // =====================
+    // SCHEDULES
+    // =====================
+
+    /**
+     * POST /schedules
+     * Créer un nouveau planning
+     * Requires: Authorization header avec JWT token
+     */
+    @POST("schedules")
+    suspend fun createSchedule(
+        @Body request: CreateScheduleRequest
+    ): Response<ScheduleResponse>
+
+    /**
+     * GET /schedules
+     * Récupérer tous les plannings de l'utilisateur
+     * Requires: Authorization header avec JWT token
+     */
+    @GET("schedules")
+    suspend fun getSchedules(): Response<SchedulesListResponse>
+
+    /**
+     * GET /schedules/{scheduleId}
+     * Récupérer un planning spécifique
+     * Requires: Authorization header avec JWT token
+     */
+    @GET("schedules/{scheduleId}")
+    suspend fun getSchedule(
+        @Path("scheduleId") scheduleId: String
+    ): Response<ScheduleResponse>
+
+    /**
+     * PUT /schedules/{scheduleId}
+     * Mettre à jour un planning existant
+     * Requires: Authorization header avec JWT token
+     */
+    @PUT("schedules/{scheduleId}")
+    suspend fun updateSchedule(
+        @Path("scheduleId") scheduleId: String,
+        @Body request: UpdateScheduleRequest
+    ): Response<ScheduleResponse>
+
+    /**
+     * DELETE /schedules/{scheduleId}
+     * Supprimer un planning
+     * Requires: Authorization header avec JWT token
+     */
+    @DELETE("schedules/{scheduleId}")
+    suspend fun deleteSchedule(
+        @Path("scheduleId") scheduleId: String
+    ): Response<DeleteScheduleResponse>
+
+    // =====================
+    // HEALTH CHECK
+    // =====================
+
+    /**
+     * GET /health
+     * Vérifier l'état du serveur
+     */
+    @GET("health")
+    suspend fun healthCheck(): Response<HealthResponse>
+}
