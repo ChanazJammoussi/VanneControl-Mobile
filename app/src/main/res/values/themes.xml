@@ -12,6 +12,9 @@
         <!-- Icônes noires (OBLIGATOIRE sur fond blanc) -->
         <item name="android:windowLightStatusBar">true</item>
 
+        <item name="android:autofilledHighlight">@color/autofill_highlight</item>
+
+
     </style>
 
 

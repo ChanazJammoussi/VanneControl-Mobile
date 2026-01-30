@@ -11,4 +11,6 @@
 
     <color name="grey">#F0F0F0</color>
 
+    <color name="autofill_highlight">#1A52A433</color>
+
 </resources>
