@@ -13,6 +13,9 @@ import com.example.myapplicationv10.network.NetworkResult
 import com.example.myapplicationv10.viewmodel.RegisterViewModel
 import com.example.myapplicationv10.websocket.WebSocketManager
 import kotlinx.coroutines.launch
+import androidx.activity.enableEdgeToEdge
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 
 /**
  * RegisterActivity - Écran d'inscription avec MVVM
@@ -36,7 +39,14 @@ class RegisterActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContentView(R.layout.activity_register)
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.registerLayout)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         initializeViews()
         setupClickListeners()
