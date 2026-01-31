@@ -7,7 +7,6 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
@@ -19,13 +18,8 @@ import kotlinx.coroutines.launch
 
 class LoginActivity : BaseActivity() {
 
-
     private lateinit var loadingProgressBar: ProgressBar
-
-    // ViewModel
     private val viewModel: LoginViewModel by viewModels()
-
-    // View Binding
     private lateinit var binding: ActivityLoginBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,23 +41,19 @@ class LoginActivity : BaseActivity() {
     }
 
     private fun initializeViews() {
-        // Créer un ProgressBar programmatiquement si nécessaire
         loadingProgressBar = ProgressBar(this).apply {
             visibility = View.GONE
         }
-        // Ajouter dynamiquement au layout si tu veux qu'il soit visible
         binding.loginLayout.addView(loadingProgressBar)
     }
 
     private fun setupClickListeners() {
-        // Clic sur "Se connecter"
         binding.loginButton.setOnClickListener {
             val email = binding.emailField.text.toString().trim()
             val password = binding.passwordField.text.toString().trim()
             viewModel.login(email, password)
         }
 
-        // Clic sur "Sign up now"
         binding.registration.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
@@ -77,7 +67,7 @@ class LoginActivity : BaseActivity() {
                     is NetworkResult.Loading -> showLoading()
                     is NetworkResult.Success -> {
                         hideLoading()
-                        Toast.makeText(this@LoginActivity, "Connexion réussie!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@LoginActivity, getString(R.string.login_success), Toast.LENGTH_SHORT).show()
                         WebSocketManager.getInstance(this@LoginActivity).connect()
                         navigateToDashboard()
                     }
@@ -100,13 +90,13 @@ class LoginActivity : BaseActivity() {
 
     private fun showLoading() {
         binding.loginButton.isEnabled = false
-        binding.loginButton.text = "Connexion en cours..."
+        binding.loginButton.text = getString(R.string.logging_in)
         loadingProgressBar.visibility = View.VISIBLE
     }
 
     private fun hideLoading() {
         binding.loginButton.isEnabled = true
-        binding.loginButton.text = "Se connecter"
+        binding.loginButton.text = getString(R.string.login_button)
         loadingProgressBar.visibility = View.GONE
     }
 
@@ -119,6 +109,4 @@ class LoginActivity : BaseActivity() {
         super.onDestroy()
         viewModel.resetState()
     }
-
-
 }

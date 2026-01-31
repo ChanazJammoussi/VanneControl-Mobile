@@ -17,13 +17,6 @@ import kotlinx.coroutines.launch
 
 /**
  * TimingPlanActivity - Main screen for managing scheduled valve operations
- *
- * Displays list of existing schedules with ability to:
- * - View all schedules
- * - Toggle schedule enabled/disabled
- * - Edit a schedule
- * - Delete a schedule
- * - Add new schedule
  */
 class TimingPlanActivity : BaseActivity() {
 
@@ -39,23 +32,14 @@ class TimingPlanActivity : BaseActivity() {
         binding = ActivityTimingPlanBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Get device info from intent
         deviceId = intent.getStringExtra("DEVICE_ID")
         deviceName = intent.getStringExtra("DEVICE_NAME")
 
         setupViewModel()
+        setupUI()
         setupRecyclerView()
         setupButtons()
         observeViewModel()
-
-        // Load schedules
-        viewModel.loadSchedules()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // Refresh schedules when returning from AddTimingActivity
-        viewModel.loadSchedules()
     }
 
     private fun setupViewModel() {
@@ -63,6 +47,10 @@ class TimingPlanActivity : BaseActivity() {
             this,
             ScheduleViewModel.Factory(applicationContext)
         )[ScheduleViewModel::class.java]
+    }
+
+    private fun setupUI() {
+        binding.tvTitle.text = getString(R.string.timing_plan)
     }
 
     private fun setupRecyclerView() {
@@ -94,6 +82,11 @@ class TimingPlanActivity : BaseActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadSchedules()
+    }
+
     private fun observeViewModel() {
         lifecycleScope.launch {
             viewModel.schedulesState.collect { result ->
@@ -116,7 +109,6 @@ class TimingPlanActivity : BaseActivity() {
                             binding.emptyState.visibility = View.GONE
                             binding.schedulesRecyclerView.visibility = View.VISIBLE
 
-                            // Filter by device if deviceId is provided
                             val filteredSchedules = if (deviceId != null) {
                                 schedules.filter { it.deviceId == deviceId }
                             } else {
@@ -131,7 +123,7 @@ class TimingPlanActivity : BaseActivity() {
                         binding.emptyState.visibility = View.VISIBLE
                         Toast.makeText(
                             this@TimingPlanActivity,
-                            "Error: ${result.message}",
+                            "${getString(R.string.error)}: ${result.message}",
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -145,7 +137,7 @@ class TimingPlanActivity : BaseActivity() {
                     is NetworkResult.Success -> {
                         Toast.makeText(
                             this@TimingPlanActivity,
-                            "Schedule deleted",
+                            getString(R.string.schedule_deleted),
                             Toast.LENGTH_SHORT
                         ).show()
                         viewModel.resetDeleteState()
@@ -153,7 +145,7 @@ class TimingPlanActivity : BaseActivity() {
                     is NetworkResult.Error -> {
                         Toast.makeText(
                             this@TimingPlanActivity,
-                            "Failed to delete: ${result.message}",
+                            getString(R.string.failed_to_delete, result.message),
                             Toast.LENGTH_SHORT
                         ).show()
                         viewModel.resetDeleteState()
@@ -169,11 +161,10 @@ class TimingPlanActivity : BaseActivity() {
                     is NetworkResult.Error -> {
                         Toast.makeText(
                             this@TimingPlanActivity,
-                            "Failed to update: ${result.message}",
+                            getString(R.string.failed_to_update, result.message),
                             Toast.LENGTH_SHORT
                         ).show()
                         viewModel.resetUpdateState()
-                        // Refresh to restore original state
                         viewModel.loadSchedules()
                     }
                     else -> {}
@@ -207,10 +198,10 @@ class TimingPlanActivity : BaseActivity() {
 
     private fun showDeleteConfirmation(schedule: ScheduleResponse) {
         MaterialAlertDialogBuilder(this)
-            .setTitle("Delete Schedule")
-            .setMessage("Are you sure you want to delete \"${schedule.name}\"?")
-            .setNegativeButton("Cancel", null)
-            .setPositiveButton("Delete") { _, _ ->
+            .setTitle(getString(R.string.delete_schedule))
+            .setMessage(getString(R.string.delete_schedule_confirm))
+            .setNegativeButton(getString(R.string.cancel), null)
+            .setPositiveButton(getString(R.string.delete)) { _, _ ->
                 viewModel.deleteSchedule(schedule.id)
             }
             .show()

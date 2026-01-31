@@ -7,7 +7,6 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.myapplicationv10.network.NetworkResult
 import com.example.myapplicationv10.viewmodel.RegisterViewModel
@@ -18,10 +17,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
 /**
- * RegisterActivity - Écran d'inscription avec MVVM
- *
- * Utilise RegisterViewModel pour gérer l'inscription
- * Observe les StateFlow pour mettre à jour l'UI de manière réactive
+ * RegisterActivity - User registration screen with MVVM
  */
 class RegisterActivity : BaseActivity() {
 
@@ -34,7 +30,6 @@ class RegisterActivity : BaseActivity() {
     private lateinit var registerButton: Button
     private lateinit var signInText: TextView
 
-    // ViewModel
     private val viewModel: RegisterViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,8 +49,6 @@ class RegisterActivity : BaseActivity() {
     }
 
     private fun initializeViews() {
-        // Note: Ces IDs doivent correspondre à votre layout XML
-        // Si les IDs sont différents, ajustez-les
         firstNameField = findViewById(R.id.firstNameField)
         lastNameField = findViewById(R.id.lastNameField)
         emailField = findViewById(R.id.emailField)
@@ -67,7 +60,6 @@ class RegisterActivity : BaseActivity() {
     }
 
     private fun setupClickListeners() {
-        // Clic sur "S'inscrire"
         registerButton.setOnClickListener {
             val firstName = firstNameField.text.toString().trim()
             val lastName = lastNameField.text.toString().trim()
@@ -79,7 +71,6 @@ class RegisterActivity : BaseActivity() {
             viewModel.register(firstName, lastName, email, phone, password, confirmPassword)
         }
 
-        // Clic sur "Already have an account? Sign in"
         signInText.setOnClickListener {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
@@ -87,16 +78,11 @@ class RegisterActivity : BaseActivity() {
         }
     }
 
-    /**
-     * Observer les StateFlow du ViewModel
-     */
     private fun observeViewModel() {
-        // Observer l'état d'inscription
         lifecycleScope.launch {
             viewModel.registerState.collect { result ->
                 when (result) {
                     is NetworkResult.Idle -> {
-                        // État initial - Ne rien faire
                         hideLoading()
                     }
 
@@ -108,14 +94,11 @@ class RegisterActivity : BaseActivity() {
                         hideLoading()
                         Toast.makeText(
                             this@RegisterActivity,
-                            "Inscription réussie!",
+                            getString(R.string.registration_success),
                             Toast.LENGTH_SHORT
                         ).show()
 
-                        // Connecter au WebSocket
                         WebSocketManager.getInstance(this@RegisterActivity).connect()
-
-                        // Naviguer vers le Dashboard
                         navigateToDashboard()
                     }
 
@@ -131,7 +114,6 @@ class RegisterActivity : BaseActivity() {
             }
         }
 
-        // Observer les erreurs de champs
         lifecycleScope.launch {
             viewModel.firstNameError.collect { error ->
                 firstNameField.error = error
@@ -171,17 +153,16 @@ class RegisterActivity : BaseActivity() {
 
     private fun showLoading() {
         registerButton.isEnabled = false
-        registerButton.text = "Inscription en cours..."
+        registerButton.text = getString(R.string.registering)
     }
 
     private fun hideLoading() {
         registerButton.isEnabled = true
-        registerButton.text = "S'inscrire"
+        registerButton.text = getString(R.string.register_button)
     }
 
     private fun navigateToDashboard() {
         val intent = Intent(this, DashboardActivity::class.java)
-        // Clear back stack - user cannot go back to registration/login
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()

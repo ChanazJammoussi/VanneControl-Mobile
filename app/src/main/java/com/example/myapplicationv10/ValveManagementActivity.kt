@@ -2,64 +2,48 @@ package com.example.myapplicationv10
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.myapplicationv10.network.NetworkResult
 import com.example.myapplicationv10.utils.Constants
 import com.example.myapplicationv10.utils.ValveLimitManager
 import com.example.myapplicationv10.viewmodel.ValveManagementViewModel
 import com.example.myapplicationv10.websocket.WebSocketManager
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
- * ValveManagementActivity - Gestion des 8 pistons avec MVVM
- *
- * Utilise ValveManagementViewModel pour gérer les pistons
- * Observe les StateFlow pour mettre à jour l'UI de manière réactive
- * Intègre le WebSocket pour les mises à jour en temps réel
+ * ValveManagementActivity - Manage pistons with MVVM
  */
 class ValveManagementActivity : BaseActivity() {
 
-    // ViewModel
     private val viewModel: ValveManagementViewModel by viewModels()
-
-    // WebSocket manager
     private lateinit var webSocketManager: WebSocketManager
 
-    // ID et nom de l'appareil
     private var deviceId: String? = null
     private var deviceName: String? = null
 
-    // Map pour garder une référence des CardViews et ImageViews
     private val valveViews = mutableMapOf<Int, Pair<CardView, ImageView>>()
-
-    // Valve limit manager
     private lateinit var valveLimitManager: ValveLimitManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_valve_management)
 
-        // Récupérer l'ID de l'appareil depuis l'Intent
         deviceId = intent.getStringExtra("DEVICE_ID")
         deviceName = intent.getStringExtra("DEVICE_NAME")
 
         if (deviceId == null) {
-            Toast.makeText(this, "Erreur: Aucun appareil sélectionné", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.no_device_selected), Toast.LENGTH_LONG).show()
             finish()
             return
         }
 
-        // Initialize valve limit manager
         valveLimitManager = ValveLimitManager.getInstance(this)
 
         setupBackButton()
@@ -67,7 +51,6 @@ class ValveManagementActivity : BaseActivity() {
         observeViewModel()
         setupWebSocket()
 
-        // Charger les données de l'appareil
         viewModel.loadDevice(deviceId!!)
     }
 
@@ -78,96 +61,74 @@ class ValveManagementActivity : BaseActivity() {
     }
 
     private fun setupValveControls() {
-        // Configuration des 8 valves
-        for (i in 1..8) {
-            val cardId = resources.getIdentifier("valve${i}Card", "id", packageName)
-            val iconId = resources.getIdentifier("valve${i}Icon", "id", packageName)
+        val valveLimit = valveLimitManager.getValveLimit()
 
-            val card = findViewById<CardView>(cardId)
-            val icon = findViewById<ImageView>(iconId)
+        val valveContainerIds = listOf(
+            R.id.valve1Container, R.id.valve2Container, R.id.valve3Container, R.id.valve4Container,
+            R.id.valve5Container, R.id.valve6Container, R.id.valve7Container, R.id.valve8Container
+        )
 
-            // Stocker les références
-            valveViews[i] = Pair(card, icon)
+        val valveCardIds = listOf(
+            R.id.valve1Card, R.id.valve2Card, R.id.valve3Card, R.id.valve4Card,
+            R.id.valve5Card, R.id.valve6Card, R.id.valve7Card, R.id.valve8Card
+        )
 
-            // Check if valve is enabled
-            if (valveLimitManager.isValveEnabled(i)) {
-                // Enabled: Allow clicks
-                card.setOnClickListener {
-                    showConfirmationDialog(i)
-                }
-                card.isClickable = true
-                card.isFocusable = true
+        val valveIconIds = listOf(
+            R.id.valve1Icon, R.id.valve2Icon, R.id.valve3Icon, R.id.valve4Icon,
+            R.id.valve5Icon, R.id.valve6Icon, R.id.valve7Icon, R.id.valve8Icon
+        )
+
+        for (i in 0 until 8) {
+            val pistonNumber = i + 1
+            val container = findViewById<LinearLayout>(valveContainerIds[i])
+            val card = findViewById<CardView>(valveCardIds[i])
+            val icon = findViewById<ImageView>(valveIconIds[i])
+
+            if (pistonNumber > valveLimit) {
+                container.visibility = View.GONE
             } else {
-                // Disabled: Remove click listener and show as disabled
-                card.setOnClickListener(null)
-                card.isClickable = false
-                card.isFocusable = false
+                container.visibility = View.VISIBLE
+                valveViews[pistonNumber] = Pair(card, icon)
 
-                // Apply disabled styling
-                card.setCardBackgroundColor(getColor(R.color.gray_disabled))
-                icon.setImageResource(R.drawable.ic_toggle_off)
-                icon.setColorFilter(getColor(R.color.gray_icon),
-                    android.graphics.PorterDuff.Mode.SRC_IN)
+                card.setOnClickListener {
+                    showConfirmationDialog(pistonNumber)
+                }
             }
         }
     }
 
-    /**
-     * Observer les StateFlow du ViewModel
-     */
     private fun observeViewModel() {
-        // Observer l'état de l'appareil
         lifecycleScope.launch {
             viewModel.deviceState.collect { result ->
                 when (result) {
-                    is NetworkResult.Idle -> {
-                        // État initial - Ne rien faire
-                    }
-
-                    is NetworkResult.Loading -> {
-                        // Optionnel: Afficher un loading indicator
-                    }
-
                     is NetworkResult.Success -> {
                         val device = result.data
-
-                        // Mettre à jour l'UI pour chaque piston
                         device.pistons.forEach { piston ->
                             updatePistonUI(piston.pistonNumber, piston.state)
                         }
                     }
-
                     is NetworkResult.Error -> {
-                        Snackbar.make(
-                            findViewById(android.R.id.content),
+                        Toast.makeText(
+                            this@ValveManagementActivity,
                             result.message,
-                            Snackbar.LENGTH_LONG
+                            Toast.LENGTH_LONG
                         ).show()
                     }
+                    else -> {}
                 }
             }
         }
 
-        // Observer l'état du contrôle
         lifecycleScope.launch {
             viewModel.controlState.collect { result ->
                 when (result) {
-                    is NetworkResult.Idle -> {
-                        // État initial - Ne rien faire
-                    }
-
-                    is NetworkResult.Loading -> {
-                        // Optionnel: Afficher un loading indicator
-                    }
-
                     is NetworkResult.Success -> {
-                        val piston = result.data
-                        val status = if (piston.state == Constants.STATE_ACTIVE)
-                            "activé ✅" else "désactivé ❌"
-
+                        val pistonNumber = result.data.pistonNumber
+                        val status = if (result.data.state == Constants.STATE_ACTIVE)
+                            getString(R.string.opened) else getString(R.string.closed)
                         Toast.makeText(
                             this@ValveManagementActivity,
-                            "Piston ${piston.pistonNumber} $status",
+                            "${getString(R.string.valve)} $pistonNumber $status",
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -180,31 +141,24 @@ class ValveManagementActivity : BaseActivity() {
                         ).show()
                     }
 
-                    null -> {
-                        // Pas d'état de contrôle
-                    }
+                    null -> {}
+                    else -> {}
                 }
             }
         }
     }
 
-    /**
-     * Configurer le WebSocket pour les mises à jour en temps réel
-     */
     private fun setupWebSocket() {
         webSocketManager = WebSocketManager.getInstance(this)
 
-        // Écouter les mises à jour de pistons
         webSocketManager.addPistonUpdateListener { message ->
-            // Vérifier si c'est pour notre appareil
             if (message.deviceId == deviceId) {
                 lifecycleScope.launch(Dispatchers.Main) {
-                    // Mettre à jour l'UI du piston
                     updatePistonUI(message.pistonNumber, message.state)
 
                     Toast.makeText(
                         this@ValveManagementActivity,
-                        "Piston ${message.pistonNumber} mis à jour",
+                        getString(R.string.piston_updated, message.pistonNumber),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -212,79 +166,37 @@ class ValveManagementActivity : BaseActivity() {
         }
     }
 
-    /**
-     * Afficher le dialogue de confirmation
-     */
     private fun showConfirmationDialog(pistonNumber: Int) {
         val piston = viewModel.getPiston(pistonNumber)
-
-        // If piston doesn't exist locally, assume it's inactive
-        // The backend will create it lazily on activation
         val currentState = piston?.state ?: Constants.STATE_INACTIVE
         val action = if (currentState == Constants.STATE_ACTIVE)
-            "désactiver" else "activer"
+            getString(R.string.deactivate) else getString(R.string.activate)
 
         AlertDialog.Builder(this)
-            .setTitle("Confirmation")
-            .setMessage("Voulez-vous vraiment $action le Piston $pistonNumber ?")
-            .setPositiveButton("Oui") { _, _ ->
+            .setTitle(getString(R.string.confirmation))
+            .setMessage(getString(R.string.confirm_piston_action, action, pistonNumber))
+            .setPositiveButton(getString(R.string.yes)) { _, _ ->
                 viewModel.togglePiston(pistonNumber, currentState)
             }
-            .setNegativeButton("Annuler", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
 
-    /**
-     * Mettre à jour l'UI d'un piston
-     */
     private fun updatePistonUI(pistonNumber: Int, state: String) {
         val views = valveViews[pistonNumber] ?: return
         val (card, icon) = views
 
-        // Check if this valve is within the enabled limit
-        if (!valveLimitManager.isValveEnabled(pistonNumber)) {
-            // Disabled state: gray background, gray icon, non-interactive
-            card.setCardBackgroundColor(getColor(R.color.gray_disabled))
-            icon.setImageResource(R.drawable.ic_toggle_off)
-            icon.setColorFilter(getColor(R.color.gray_icon),
-                android.graphics.PorterDuff.Mode.SRC_IN)
-            card.isClickable = false
-            card.isFocusable = false
-            return
-        }
-
-        // Valve is enabled: show active/inactive state
-        val isActive = state == Constants.STATE_ACTIVE
-
-        if (isActive) {
-            // Piston activé: vert avec toggle ON
+        if (state == Constants.STATE_ACTIVE) {
             card.setCardBackgroundColor(getColor(R.color.green))
             icon.setImageResource(R.drawable.ic_toggle_on)
-            icon.clearColorFilter()
         } else {
-            // Piston désactivé: rouge avec toggle OFF
-            card.setCardBackgroundColor(getColor(android.R.color.holo_red_light))
+            card.setCardBackgroundColor(getColor(R.color.gray_disabled))
             icon.setImageResource(R.drawable.ic_toggle_off)
-            icon.clearColorFilter()
-        }
-
-        // Ensure clickable for enabled valves
-        card.isClickable = true
-        card.isFocusable = true
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // Rafraîchir l'appareil quand on revient sur l'écran
-        deviceId?.let {
-            viewModel.refreshDevice()
-            // Re-setup valve controls in case limits changed
-            setupValveControls()
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.resetControlState()
+        webSocketManager.removePistonUpdateListener {}
     }
 }

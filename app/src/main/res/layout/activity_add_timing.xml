@@ -80,7 +80,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Schedule Name"
+                android:hint="@string/schedule_name"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 app:boxStrokeColor="@color/green"
                 app:hintTextColor="@color/green"
@@ -100,7 +100,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Select Valve"
+                android:text="@string/select_valve"
                 android:textColor="@color/black"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -128,7 +128,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Repeat"
+                    android:text="@string/repeat"
                     android:textColor="@color/black"
                     android:textSize="16sp"/>
 
@@ -171,7 +171,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Timed On"
+                            android:text="@string/timed_on"
                             android:textColor="@color/black"
                             android:textSize="16sp"
                             android:textStyle="bold"/>
@@ -248,7 +248,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Timed Off"
+                            android:text="@string/timed_off"
                             android:textColor="@color/black"
                             android:textSize="16sp"
                             android:textStyle="bold"/>

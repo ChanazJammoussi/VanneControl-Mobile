@@ -12,8 +12,8 @@
     <string name="login_title">Connexion</string>
     <string name="email_hint">Adresse e-mail</string>
     <string name="password_hint">Mot de passe</string>
-    <string name="login_button">Se connecter</string>
     <string name="forgot_password">Mot de passe oublié ?</string>
+    <string name="login_button">Se connecter</string>
     <string name="no_account">Vous n\'avez pas de compte ? Inscrivez-vous</string>
     <string name="login_error">Échec de la connexion. Vérifiez vos identifiants.</string>
     <string name="email_required">L\'email est requis</string>
@@ -46,17 +46,25 @@
 
     <!-- Dashboard Activity -->
     <string name="dashboard_title">Tableau de bord</string>
-    <string name="welcome">Bienvenue</string>
+    <string name="welcome">Bienvenue sur</string>
+    <string name="control_panel">Panneau de contrôle</string>
     <string name="active_valves">Vannes actives</string>
-    <string name="total_valves">Total des vannes</string>
+    <string name="contol_models">Modules de contrôle</string>
     <string name="valve_management">Gestion des vannes</string>
+    <string name="valve_management_description">Gestion complète des vannes</string>
+    <string name="valve_operation_history">Historique des opérations</string>
+    <string name="valve_operation_history_description">Journaux détaillés d\'activation</string>
+    <string name="usage_statistics">Statistiques d\'utilisation</string>
+    <string name="usage_statistics_description">Rapports d\'utilisation détaillés</string>
+    <string name="alerts_and_notifications">Alertes et notifications</string>
+    <string name="alerts_and_notifications_description">Consulter la télémétrie et alertes</string>
     <string name="history">Historique</string>
     <string name="statistics">Statistiques</string>
     <string name="profile">Profil</string>
-    <string name="logout">Déconnexion</string>
     <string name="valve">Vanne</string>
     <string name="active">Active</string>
     <string name="inactive">Inactive</string>
+    <string name="no_active_valves">Aucune vanne active</string>
 
     <!-- Valve Management Activity -->
     <string name="valve_management_title">Gestion des vannes</string>
@@ -75,7 +83,7 @@
     <string name="closed">Fermée</string>
 
     <!-- History Activity -->
-    <string name="history_title">Historique</string>
+    <string name="history_title">Historique des opérations</string>
     <string name="filter_history">Filtrer l\'historique</string>
     <string name="select_valves">Sélectionner les vannes</string>
     <string name="action_type">Type d\'action :</string>
@@ -92,7 +100,8 @@
     <!-- Statistics Activity -->
     <string name="statistics_title">Statistiques d\'utilisation</string>
     <string name="export_pdf">PDF</string>
-    <string name="total_valves_card">Total des vannes</string>
+    <string name="overview">Aperçu</string>
+    <string name="total_valves">Total des vannes</string>
     <string name="active_now">Actives maintenant</string>
     <string name="inactive_valves">Inactives</string>
     <string name="maintenance">Maintenance</string>
@@ -103,15 +112,17 @@
     <string name="export_error">Échec de l\'exportation du PDF</string>
 
     <!-- Profile Activity -->
-    <string name="profile_title">Profil</string>
+    <string name="profile_title">Mon Profil</string>
+    <string name="edit_profile">Modifier le profil</string>
     <string name="personal_info">Informations personnelles</string>
-    <string name="system">Système</string>
     <string name="first_name">Prénom</string>
     <string name="last_name">Nom</string>
+    <string name="date_of_birth">Date de naissance</string>
     <string name="email">Email</string>
     <string name="phone">Téléphone</string>
     <string name="location">Localisation</string>
-    <string name="edit_profile">Modifier le profil</string>
+    <string name="system">Système</string>
+    <string name="number_of_controlled_valves">Nombre de vannes contrôlées</string>
     <string name="save_changes">Enregistrer les modifications</string>
     <string name="language">Langue</string>
     <string name="language_english">English</string>
@@ -124,6 +135,7 @@
     <string name="about">À propos</string>
     <string name="privacy_policy">Politique de confidentialité</string>
     <string name="terms_conditions">Conditions générales</string>
+    <string name="logout">Déconnexion</string>
     <string name="logout_confirm">Êtes-vous sûr de vouloir vous déconnecter ?</string>
 
     <!-- Common -->
@@ -174,4 +186,49 @@
     <string name="content_desc_menu">Menu</string>
     <string name="content_desc_profile_image">Image de profil</string>
     <string name="content_desc_close">Fermer</string>
+
+    <!-- Messages Toast et Dialogues -->
+    <string name="login_success">Connexion réussie !</string>
+    <string name="logging_in">Connexion en cours...</string>
+    <string name="registering">Inscription en cours...</string>
+    <string name="confirmation">Confirmation</string>
+    <string name="activate">activer</string>
+    <string name="deactivate">désactiver</string>
+    <string name="confirm_piston_action">Voulez-vous vraiment %1$s le Piston %2$d ?</string>
+    <string name="piston_updated">Piston %1$d mis à jour</string>
+    <string name="piston_updated_state">Piston %1$d mis à jour : %2$s</string>
+    <string name="device_status">Appareil %1$s</string>
+    <string name="devices_valves_count">%1$d appareil(s), %2$d vanne(s) active(s)</string>
+    <string name="no_device_selected">Erreur : Aucun appareil sélectionné</string>
+    <string name="failed_to_delete">Échec de la suppression : %1$s</string>
+    <string name="failed_to_update">Échec de la mise à jour : %1$s</string>
+    <string name="please_enter_schedule_name">Veuillez entrer un nom de programmation</string>
+    <string name="no_device">Aucun appareil sélectionné</string>
+    <string name="enable_at_least_one_timer">Veuillez activer au moins un minuteur</string>
+    <string name="select_future_date">Veuillez sélectionner une date et heure future</string>
+    <string name="change_profile_photo">Changer la photo de profil</string>
+    <string name="choose_from_gallery">Choisir dans la galerie</string>
+    <string name="take_photo">Prendre une photo</string>
+    <string name="remove_photo">Supprimer la photo</string>
+
+    <!-- Timing Plan -->
+    <string name="timing_plan">Plan de programmation</string>
+    <string name="timing_plan_description">Gérer les horaires des vannes</string>
+    <string name="no_schedules">Aucune programmation</string>
+    <string name="tap_add_schedule">Appuyez sur Ajouter pour créer votre première programmation</string>
+    <string name="schedule_name">Nom de la programmation</string>
+    <string name="select_valve">Sélectionner une vanne</string>
+    <string name="repeat">Répétition</string>
+    <string name="once">Une fois</string>
+    <string name="everyday">Tous les jours</string>
+    <string name="weekdays">Jours de semaine</string>
+    <string name="weekends">Week-ends</string>
+    <string name="custom">Personnalisé</string>
+    <string name="timed_on">Activation programmée</string>
+    <string name="timed_off">Désactivation programmée</string>
+    <string name="schedule_saved">Programmation enregistrée</string>
+    <string name="schedule_deleted">Programmation supprimée</string>
+    <string name="delete_schedule">Supprimer la programmation</string>
+    <string name="delete_schedule_confirm">Êtes-vous sûr de vouloir supprimer cette programmation ?</string>
+
 </resources>

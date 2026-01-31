@@ -97,14 +97,14 @@ class AddTimingActivity : BaseActivity() {
     }
 
     private fun setupUI() {
-        binding.tvTitle.text = if (isEditMode) "Edit Timing" else "Add Timing"
+        binding.tvTitle.text = if (isEditMode) getString(R.string.edit) + " " + getString(R.string.timing_plan) else getString(R.string.add) + " " + getString(R.string.timing_plan)
     }
 
     private fun setupValveSpinner() {
         val sharedPreferences = getSharedPreferences("VanneControl", Context.MODE_PRIVATE)
         val numberOfValves = sharedPreferences.getInt("totalValves", 8)
 
-        val valveOptions = (1..numberOfValves).map { "Valve $it" }
+        val valveOptions = (1..numberOfValves).map { getString(R.string.valve_number, it) }
         val adapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_item,
@@ -185,13 +185,13 @@ class AddTimingActivity : BaseActivity() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_repeat_selection, null)
         val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
-            .setPositiveButton("OK") { _, _ ->
+            .setPositiveButton(getString(R.string.ok)) { _, _ ->
                 // If "Once" is selected, show date picker
                 if (selectedRepeatType == RepeatType.ONCE) {
                     showDatePickerForOnce()
                 }
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .create()
 
         val radioOnce = dialogView.findViewById<RadioButton>(R.id.radioOnce)
@@ -276,7 +276,7 @@ class AddTimingActivity : BaseActivity() {
                 selectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
 
                 // Update the display to show the selected date
-                binding.tvRepeatValue.text = "Once (${dateFormat.format(selectedDate.time)})"
+                binding.tvRepeatValue.text = "${getString(R.string.once)} (${dateFormat.format(selectedDate.time)})"
             },
             selectedDate.get(Calendar.YEAR),
             selectedDate.get(Calendar.MONTH),
@@ -293,15 +293,15 @@ class AddTimingActivity : BaseActivity() {
             RepeatType.ONCE -> {
                 // Show date if already selected
                 if (selectedRepeatType == RepeatType.ONCE) {
-                    "Once (${dateFormat.format(selectedDate.time)})"
+                    "${getString(R.string.once)} (${dateFormat.format(selectedDate.time)})"
                 } else {
-                    "Once"
+                    getString(R.string.once)
                 }
             }
-            RepeatType.EVERYDAY -> "Everyday"
-            RepeatType.WEEKDAYS -> "Weekdays"
-            RepeatType.WEEKENDS -> "Weekends"
-            RepeatType.CUSTOM -> "Custom"
+            RepeatType.EVERYDAY -> getString(R.string.everyday)
+            RepeatType.WEEKDAYS -> getString(R.string.weekdays)
+            RepeatType.WEEKENDS -> getString(R.string.weekends)
+            RepeatType.CUSTOM -> getString(R.string.custom)
         }
     }
 
@@ -396,7 +396,7 @@ class AddTimingActivity : BaseActivity() {
                     is NetworkResult.Success -> {
                         Toast.makeText(
                             this@AddTimingActivity,
-                            "Schedule created successfully",
+                            getString(R.string.schedule_saved),
                             Toast.LENGTH_SHORT
                         ).show()
                         viewModel.resetCreateState()
@@ -406,7 +406,7 @@ class AddTimingActivity : BaseActivity() {
                         binding.btnSave.isEnabled = true
                         Toast.makeText(
                             this@AddTimingActivity,
-                            "Error: ${result.message}",
+                            "${getString(R.string.error)}: ${result.message}",
                             Toast.LENGTH_SHORT
                         ).show()
                         viewModel.resetCreateState()
@@ -427,7 +427,7 @@ class AddTimingActivity : BaseActivity() {
                     is NetworkResult.Success -> {
                         Toast.makeText(
                             this@AddTimingActivity,
-                            "Schedule updated successfully",
+                            getString(R.string.schedule_saved),
                             Toast.LENGTH_SHORT
                         ).show()
                         viewModel.resetUpdateState()
@@ -437,7 +437,7 @@ class AddTimingActivity : BaseActivity() {
                         binding.btnSave.isEnabled = true
                         Toast.makeText(
                             this@AddTimingActivity,
-                            "Error: ${result.message}",
+                            "${getString(R.string.error)}: ${result.message}",
                             Toast.LENGTH_SHORT
                         ).show()
                         viewModel.resetUpdateState()
@@ -453,12 +453,12 @@ class AddTimingActivity : BaseActivity() {
     private fun saveSchedule() {
         val name = binding.etScheduleName.text.toString().trim()
         if (name.isEmpty()) {
-            binding.etScheduleName.error = "Please enter a schedule name"
+            binding.etScheduleName.error = getString(R.string.please_enter_schedule_name)
             return
         }
 
         if (deviceId == null) {
-            Toast.makeText(this, "No device selected", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.no_device), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -466,7 +466,7 @@ class AddTimingActivity : BaseActivity() {
         val timedOffEnabled = binding.switchTimedOff.isChecked
 
         if (!timedOnEnabled && !timedOffEnabled) {
-            Toast.makeText(this, "Please enable at least one timer", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.enable_at_least_one_timer), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -482,7 +482,7 @@ class AddTimingActivity : BaseActivity() {
             }
 
             if (selectedDate.before(now)) {
-                Toast.makeText(this, "Please select a future date and time", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.select_future_date), Toast.LENGTH_SHORT).show()
                 return
             }
         }

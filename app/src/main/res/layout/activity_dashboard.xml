@@ -39,7 +39,7 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:src="@drawable/account_circle"
-            android:contentDescription="Profile"
+            android:contentDescription="@string/profile"
             android:scaleType="centerCrop"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -122,7 +122,7 @@
                             android:id="@+id/noActiveValvesText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Aucune valve est active"
+                            android:text="@string/no_active_valves"
                             android:textColor="#999999"
                             android:textSize="14sp"
                             android:visibility="gone"
@@ -174,7 +174,7 @@
                             android:background="@android:color/transparent"
                             android:padding="8dp"
                             app:tint="@color/green"
-                            android:contentDescription="Valve Control" />
+                            android:contentDescription="@string/valve_management" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -205,7 +205,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_chevron_right"
-                            android:contentDescription="Arrow" />
+                            android:contentDescription="@string/content_desc_menu" />
 
                     </LinearLayout>
 
@@ -240,7 +240,7 @@
                             android:background="@android:color/transparent"
                             android:padding="8dp"
                             app:tint="@color/green"
-                            android:contentDescription="Timing Plan" />
+                            android:contentDescription="@string/timing_plan" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -252,7 +252,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Timing Plan"
+                                android:text="@string/timing_plan"
                                 android:textColor="@color/black"
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
@@ -260,7 +260,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Gérer les horaires des vannes"
+                                android:text="@string/timing_plan_description"
                                 android:textColor="#666666"
                                 android:textSize="14sp"
                                 android:layout_marginTop="4dp" />
@@ -271,7 +271,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_chevron_right"
-                            android:contentDescription="Arrow" />
+                            android:contentDescription="@string/content_desc_menu" />
 
                     </LinearLayout>
 
@@ -304,7 +304,7 @@
                             android:layout_height="40dp"
                             android:src="@drawable/ic_calendar"
                             android:padding="8dp"
-                            android:contentDescription="History"
+                            android:contentDescription="@string/history"
                             app:tint="@color/green" />
 
                         <LinearLayout
@@ -336,7 +336,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_chevron_right"
-                            android:contentDescription="Arrow" />
+                            android:contentDescription="@string/content_desc_menu" />
 
                     </LinearLayout>
 
@@ -369,7 +369,7 @@
                             android:layout_height="40dp"
                             android:src="@drawable/ic_bar_chart"
                             android:padding="8dp"
-                            android:contentDescription="Statistics"
+                            android:contentDescription="@string/statistics"
                             app:tint="@color/green" />
 
                         <LinearLayout
@@ -401,7 +401,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_chevron_right"
-                            android:contentDescription="Arrow" />
+                            android:contentDescription="@string/content_desc_menu" />
 
                     </LinearLayout>
 
@@ -420,7 +420,6 @@
                     app:cardCornerRadius="8dp"
                     app:cardElevation="2dp"
                     app:cardUseCompatPadding="true"
-
                     app:layout_constraintTop_toBottomOf="@id/statisticsCard"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent">
@@ -437,9 +436,8 @@
                             android:layout_height="40dp"
                             android:src="@drawable/ic_notifications"
                             android:padding="8dp"
-                            android:contentDescription="Notifications"
+                            android:contentDescription="@string/notifications"
                             app:tint="@color/green" />
-
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -470,14 +468,11 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_chevron_right"
-                            android:contentDescription="Arrow" />
+                            android:contentDescription="@string/content_desc_menu" />
 
                     </LinearLayout>
 
                 </androidx.cardview.widget.CardView>
-
-
-
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
