@@ -41,7 +41,11 @@ class DashboardActivity : BaseActivity() {
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.main) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            // Top bar - padding pour la barre de statut
             binding.topBar.setPadding(16, systemBars.top + 16, 16, 16)
+
+            // Ne pas appliquer de padding au swipeRefreshLayout ici
             insets
         }
 
@@ -75,7 +79,6 @@ class DashboardActivity : BaseActivity() {
     }
 
     private fun setupSwipeRefresh() {
-        binding.swipeRefreshLayout.setColorSchemeResources(R.color.green)
         binding.swipeRefreshLayout.setOnRefreshListener {
             viewModel.refreshDevices()
             loadUserAvatar()
@@ -92,7 +95,7 @@ class DashboardActivity : BaseActivity() {
                 intent.putExtra("DEVICE_NAME", firstDevice.name)
                 startActivity(intent)
             } else {
-                Toast.makeText(this, getString(R.string.no_device), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Aucun appareil disponible", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -105,7 +108,7 @@ class DashboardActivity : BaseActivity() {
                 intent.putExtra("DEVICE_NAME", firstDevice.name)
                 startActivity(intent)
             } else {
-                Toast.makeText(this, getString(R.string.no_device), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Aucun appareil disponible", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -118,7 +121,7 @@ class DashboardActivity : BaseActivity() {
         }
 
         binding.notificationsCard.setOnClickListener {
-            Snackbar.make(binding.main, getString(R.string.notifications), Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(binding.main, "Notifications à venir...", Snackbar.LENGTH_SHORT).show()
         }
     }
 
@@ -129,23 +132,23 @@ class DashboardActivity : BaseActivity() {
                     val user = result.data
 
                     val welcomeText = if (!user.firstName.isNullOrEmpty()) {
-                        "${getString(R.string.welcome)} ${user.firstName}!"
+                        "Welcome, ${user.firstName}!"
                     } else {
-                        getString(R.string.welcome)
+                        "Welcome!"
                     }
                     binding.welcome.text = welcomeText
 
-                    if (!user.avatarUrl.isNullOrEmpty()) {
-                        binding.profileIcon.load(user.avatarUrl) {
-                            crossfade(true)
-                            placeholder(R.drawable.account_circle)
-                            error(R.drawable.account_circle)
-                            transformations(CircleCropTransformation())
-                        }
+                    binding.profileIcon.load(com.example.myapplicationv10.utils.Constants.fixAvatarUrl(user.avatarUrl)) {
+                        crossfade(true)
+                        placeholder(R.drawable.ic_avatar_placeholder)
+                        error(R.drawable.ic_avatar_placeholder)
+                        transformations(CircleCropTransformation())
                     }
                 }
                 is NetworkResult.Error -> {
-                    // Silent fail for avatar loading
+                    binding.profileIcon.load(R.drawable.ic_avatar_placeholder) {
+                        transformations(CircleCropTransformation())
+                    }
                 }
                 else -> {}
             }
@@ -156,22 +159,17 @@ class DashboardActivity : BaseActivity() {
         lifecycleScope.launch {
             viewModel.devicesState.collect { result ->
                 when (result) {
-                    is NetworkResult.Idle -> {}
-                    is NetworkResult.Loading -> {
-                        binding.swipeRefreshLayout.isRefreshing = true
-                    }
+                    is NetworkResult.Idle -> binding.swipeRefreshLayout.isRefreshing = false
+                    is NetworkResult.Loading -> { /* Optional: show loader */ }
                     is NetworkResult.Success -> {
                         binding.swipeRefreshLayout.isRefreshing = false
+                        val activePistons = viewModel.getActivePistons()
 
-                        val activeValves = result.data.flatMap { device ->
-                            device.pistons
-                                .filter { it.state == "ACTIVE" }
-                                .map { piston ->
-                                    Valve(
-                                        name = "${getString(R.string.valve)} ${piston.pistonNumber}",
-                                        lastChanged = piston.lastTriggered ?: ""
-                                    )
-                                }
+                        val activeValves = activePistons.map { (device, piston) ->
+                            Valve(
+                                name = "Valve ${piston.pistonNumber}",
+                                lastChanged = piston.lastTriggered ?: "Unknown"
+                            )
                         }
 
                         activeValvesAdapter.updateValves(activeValves)
@@ -186,7 +184,7 @@ class DashboardActivity : BaseActivity() {
 
                         Toast.makeText(
                             this@DashboardActivity,
-                            getString(R.string.devices_valves_count, result.data.size, activeValves.size),
+                            "${result.data.size} device(s), ${activeValves.size} active valve(s)",
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -212,7 +210,7 @@ class DashboardActivity : BaseActivity() {
                 viewModel.refreshDevices()
                 Toast.makeText(
                     this@DashboardActivity,
-                    getString(R.string.piston_updated_state, message.pistonNumber, message.state),
+                    "Piston ${message.pistonNumber} mis à jour: ${message.state}",
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -223,7 +221,7 @@ class DashboardActivity : BaseActivity() {
                 viewModel.refreshDevices()
                 Toast.makeText(
                     this@DashboardActivity,
-                    getString(R.string.device_status, message.status),
+                    "Appareil ${message.status}",
                     Toast.LENGTH_SHORT
                 ).show()
             }
