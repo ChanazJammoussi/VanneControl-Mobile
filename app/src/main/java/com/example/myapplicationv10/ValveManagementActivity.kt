@@ -45,13 +45,19 @@ class ValveManagementActivity : BaseActivity() {
     // Valve limit manager
     private lateinit var valveLimitManager: ValveLimitManager
 
+    // Ajouter cette variable
+    private var initialPistonStates: HashMap<Int, String>? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_valve_management)
 
-        // Récupérer l'ID de l'appareil depuis l'Intent
         deviceId = intent.getStringExtra("DEVICE_ID")
         deviceName = intent.getStringExtra("DEVICE_NAME")
+
+        // Récupérer les états initiaux passés depuis Dashboard
+        @Suppress("UNCHECKED_CAST")
+        initialPistonStates = intent.getSerializableExtra("PISTON_STATES") as? HashMap<Int, String>
 
         if (deviceId == null) {
             Toast.makeText(this, "Erreur: Aucun appareil sélectionné", Toast.LENGTH_LONG).show()
@@ -59,7 +65,6 @@ class ValveManagementActivity : BaseActivity() {
             return
         }
 
-        // Initialize valve limit manager
         valveLimitManager = ValveLimitManager.getInstance(this)
 
         setupBackButton()
@@ -67,8 +72,48 @@ class ValveManagementActivity : BaseActivity() {
         observeViewModel()
         setupWebSocket()
 
-        // Charger les données de l'appareil
+        // Charger les données de l'appareil (pour rafraîchissement en arrière-plan)
         viewModel.loadDevice(deviceId!!)
+    }
+
+    private fun setupValveControls() {
+        for (i in 1..8) {
+            val cardId = resources.getIdentifier("valve${i}Card", "id", packageName)
+            val iconId = resources.getIdentifier("valve${i}Icon", "id", packageName)
+
+            val card = findViewById<CardView>(cardId)
+            val icon = findViewById<ImageView>(iconId)
+
+            valveViews[i] = Pair(card, icon)
+
+            if (valveLimitManager.isValveEnabled(i)) {
+                card.setOnClickListener {
+                    showConfirmationDialog(i)
+                }
+                card.isClickable = true
+                card.isFocusable = true
+
+                // Utiliser l'état initial si disponible, sinon gris
+                val initialState = initialPistonStates?.get(i)
+                if (initialState != null) {
+                    updatePistonUI(i, initialState)
+                } else {
+                    // État loading (gris)
+                    card.setCardBackgroundColor(getColor(R.color.gray_disabled))
+                    icon.setImageResource(R.drawable.ic_toggle_off)
+                    icon.setColorFilter(getColor(R.color.gray_icon),
+                        android.graphics.PorterDuff.Mode.SRC_IN)
+                }
+            } else {
+                card.setOnClickListener(null)
+                card.isClickable = false
+                card.isFocusable = false
+                card.setCardBackgroundColor(getColor(R.color.gray_disabled))
+                icon.setImageResource(R.drawable.ic_toggle_off)
+                icon.setColorFilter(getColor(R.color.gray_icon),
+                    android.graphics.PorterDuff.Mode.SRC_IN)
+            }
+        }
     }
 
     private fun setupBackButton() {
@@ -77,40 +122,7 @@ class ValveManagementActivity : BaseActivity() {
         }
     }
 
-    private fun setupValveControls() {
-        // Configuration des 8 valves
-        for (i in 1..8) {
-            val cardId = resources.getIdentifier("valve${i}Card", "id", packageName)
-            val iconId = resources.getIdentifier("valve${i}Icon", "id", packageName)
 
-            val card = findViewById<CardView>(cardId)
-            val icon = findViewById<ImageView>(iconId)
-
-            // Stocker les références
-            valveViews[i] = Pair(card, icon)
-
-            // Check if valve is enabled
-            if (valveLimitManager.isValveEnabled(i)) {
-                // Enabled: Allow clicks
-                card.setOnClickListener {
-                    showConfirmationDialog(i)
-                }
-                card.isClickable = true
-                card.isFocusable = true
-            } else {
-                // Disabled: Remove click listener and show as disabled
-                card.setOnClickListener(null)
-                card.isClickable = false
-                card.isFocusable = false
-
-                // Apply disabled styling
-                card.setCardBackgroundColor(getColor(R.color.gray_disabled))
-                icon.setImageResource(R.drawable.ic_toggle_off)
-                icon.setColorFilter(getColor(R.color.gray_icon),
-                    android.graphics.PorterDuff.Mode.SRC_IN)
-            }
-        }
-    }
 
     /**
      * Observer les StateFlow du ViewModel
@@ -260,18 +272,20 @@ class ValveManagementActivity : BaseActivity() {
             // Piston activé: vert avec toggle ON
             card.setCardBackgroundColor(getColor(R.color.green))
             icon.setImageResource(R.drawable.ic_toggle_on)
-            icon.clearColorFilter()
+            icon.clearColorFilter()  // Remove gray filter
         } else {
             // Piston désactivé: rouge avec toggle OFF
             card.setCardBackgroundColor(getColor(android.R.color.holo_red_light))
             icon.setImageResource(R.drawable.ic_toggle_off)
-            icon.clearColorFilter()
+            icon.clearColorFilter()  // Remove gray filter
         }
 
         // Ensure clickable for enabled valves
         card.isClickable = true
         card.isFocusable = true
     }
+
+
 
     override fun onResume() {
         super.onResume()

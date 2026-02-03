@@ -93,6 +93,14 @@ class DashboardActivity : BaseActivity() {
                 val intent = Intent(this, ValveManagementActivity::class.java)
                 intent.putExtra("DEVICE_ID", firstDevice.id)
                 intent.putExtra("DEVICE_NAME", firstDevice.name)
+
+                // Passer les états des pistons comme HashMap
+                val pistonStates = HashMap<Int, String>()
+                firstDevice.pistons.forEach { piston ->
+                    pistonStates[piston.pistonNumber] = piston.state
+                }
+                intent.putExtra("PISTON_STATES", pistonStates)
+
                 startActivity(intent)
             } else {
                 Toast.makeText(this, "Aucun appareil disponible", Toast.LENGTH_SHORT).show()
@@ -227,6 +235,7 @@ class DashboardActivity : BaseActivity() {
             }
         }
     }
+
 
     override fun onResume() {
         super.onResume()
